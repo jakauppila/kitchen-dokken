@@ -44,7 +44,7 @@ module Kitchen
       default_config :read_timeout, 3600
       default_config :write_timeout, 3600
       default_config :host_ip_override do |transport|
-        transport.docker_for_mac_or_win? ? "localhost" : false
+        transport.docker_for_mac_or_win? ? "host.docker.internal" : false
       end
 
       # (see Base#connection)
@@ -77,6 +77,7 @@ module Kitchen
         end
 
         def upload(locals, remote)
+          debug "update connection options: #{options}"
           if options[:host_ip_override]
             # Allow connecting to any ip/hostname to support sibling containers
             ssh_ip = options[:host_ip_override]
@@ -209,7 +210,7 @@ module Kitchen
       #
       # @return [TrueClass,FalseClass]
       def docker_for_mac_or_win?
-        ::Docker.info(::Docker::Connection.new(config[:docker_host_url], {}))["Name"] == "moby"
+        ::Docker.info(::Docker::Connection.new(config[:docker_host_url], {}))["Name"] == "docker-desktop"
       rescue
         false
       end
